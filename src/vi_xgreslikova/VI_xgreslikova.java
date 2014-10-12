@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package vi_xgreslikova;
 
 import java.io.IOException;
@@ -16,7 +12,7 @@ import java.util.List;
 
 /**
  *
- * @author Zuzka
+ * @author Zuzana Greslikova
  */
 public class VI_xgreslikova {
 
@@ -51,9 +47,9 @@ public class VI_xgreslikova {
             BufferedReader textReader = new BufferedReader(fr);
 
             String line;
-            String REGEX1 = "(?i)Category:([^>]*)>"; // <http[^>]*//
+            String REGEX1 = "(?i)Category:([^>]*)>";
             String REGEX2 = "(?i)(<http[^>]*>).*wikiPageRedirects[^<]*(<http[^>]*>)";
-            String REGEX3 = "(?i)/" + looking + ">.*schema#comment>[^\"]*\"([^\"]*)\""; // 
+            String REGEX3 = "(?i)/" + looking + ">.*schema#comment>[^\"]*\"([^\"]*)\"";
 
             List<String> categories = new ArrayList<>();
             List<String> redirects = new ArrayList<>();
@@ -94,7 +90,7 @@ public class VI_xgreslikova {
 
     public static void create_output(String looking, String shortabstract, List<String> categories, List<String> redirects) throws IOException {
 
-        String fileOut = "output.txt";
+        String fileOut = "output.xml";
 
         try {
 
@@ -130,6 +126,8 @@ public class VI_xgreslikova {
                 textWriter.newLine();
 
             }
+            
+            textWriter.close();
 
         } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
