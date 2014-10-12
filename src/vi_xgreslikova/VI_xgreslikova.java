@@ -19,17 +19,16 @@ public class VI_xgreslikova {
     public static void main(String[] args) throws IOException {
 
         try {
-            
-            create_test_sample();
-            
-            //MAIN CODE comming soon :)
+                   
+            //MAIN CODE comming soon :)            
+                        
+            //String real_result = search("Autism");
                         
             //UNIT TEST
-            //String expected_result = null;
-            //String real_result = null;
+            create_test_sample();
+            //String expected_result = create_test_sample();
             //if(unit_test(expected_result, real_result)) System.out.println("UNIT TEST PASSED");
-            //else System.out.println("UNIT TEST FAILED");
-            
+            //else System.out.println("UNIT TEST FAILED");            
             
         } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
@@ -81,14 +80,15 @@ public class VI_xgreslikova {
             }
 
             //OUTPUT
-            create_output(looking, shortabstract, categories, redirects);
+            create_output_xml(looking, shortabstract, categories, redirects);
+            create_output_txt(looking, shortabstract, categories, redirects);
 
         } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
         }
     }
 
-    public static void create_output(String looking, String shortabstract, List<String> categories, List<String> redirects) throws IOException {
+    public static void create_output_xml(String looking, String shortabstract, List<String> categories, List<String> redirects) throws IOException {
 
         String fileOut = "output.xml";
 
@@ -127,6 +127,40 @@ public class VI_xgreslikova {
 
             }
             
+            textWriter.close();
+
+        } catch (IOException e) {
+            System.err.println("Caught IOException: " + e.getMessage());
+        }
+
+
+    }
+    
+    public static void create_output_txt(String looking, String shortabstract, List<String> categories, List<String> redirects) throws IOException {
+
+        String fileOut = "output.txt";
+
+        try {
+
+            FileWriter fw = new FileWriter(fileOut);
+            BufferedWriter textWriter = new BufferedWriter(fw);
+            List<String> output = new ArrayList<>();
+
+            textWriter.write(looking.hashCode() + "<title:" + looking + ">" + "<shortabstract:" + shortabstract + ">");
+            
+            textWriter.write("<categories:");
+            for (String l : categories) {
+                textWriter.write(l + ".");
+            }
+            textWriter.write(">");
+
+            textWriter.write("<redirects:");
+            for (String l : redirects) {
+                textWriter.write(l + ".");
+            }
+            textWriter.write(">");
+
+            textWriter.newLine();
             textWriter.close();
 
         } catch (IOException e) {
