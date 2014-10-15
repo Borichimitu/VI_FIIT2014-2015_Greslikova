@@ -130,7 +130,7 @@ public class VI_xgreslikova {
 
     public static void create_output_xml(String looking, String shortabstract, List<String> categories, List<String> redirects) throws IOException {
 
-        String fileOut = "output.xml";
+        String fileOut = "output_shortabstract_categories.xml";
         String fileOut_redirects = "output_redirects.xml";
 
         try {
