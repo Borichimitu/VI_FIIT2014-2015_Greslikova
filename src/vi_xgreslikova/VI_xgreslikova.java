@@ -31,19 +31,19 @@ public class VI_xgreslikova {
     public static void main(String[] args) throws IOException {
 
         try {
-              
+
             create_test_sample();
-            
+
             //if(compare(test_sample,get_result(Autism)) == true) read_data;
-            
-                                   
-                        
+
+
+
             //UNIT TEST
             //String real_result = search("Autism");
             //String expected_result = create_test_sample();
             //if(unit_test(expected_result, real_result)) System.out.println("UNIT TEST PASSED");
             //else System.out.println("UNIT TEST FAILED");            
-            
+
         } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
         }
@@ -58,19 +58,37 @@ public class VI_xgreslikova {
 
         try {
             String line;
-            
-            //reading categories
-            FileReader fr_categories = new FileReader(filePath_categories);
-            BufferedReader textReader = new BufferedReader(fr_categories);
-            String REGEX1 = "(?i)Category:([^>]*)>";
-            List<String> categories = new ArrayList<>();
-            
             Pattern p;
             Matcher matcher;
-            
+
             //Read and parse input
-            
-            while ((line = textReader.readLine()) != null) {
+
+            //read shortabstract
+            FileReader fr_shortabstract = new FileReader(filePath_shortabstract);
+            BufferedReader textReader1 = new BufferedReader(fr_shortabstract);
+
+            String REGEX3 = "(?i)/" + looking + ">.*schema#comment>[^\"]*\"([^\"]*)\"";
+            String shortabstract = null;// = new ArrayList<String>();
+
+            while ((line = textReader1.readLine()) != null) {
+
+                p = Pattern.compile(REGEX3);
+                matcher = p.matcher(line);
+                while (matcher.find()) {
+                    System.out.println(matcher.group(1).trim());
+                    shortabstract = (matcher.group(1).trim());
+                }
+            }
+            textReader1.close();
+            fr_shortabstract.close();
+
+            //reading categories
+            List<String> categories = new ArrayList<>();
+            FileReader fr_categories = new FileReader(filePath_categories);
+            BufferedReader textReader2 = new BufferedReader(fr_categories);
+            String REGEX1 = "(?i)Category:([^>]*)>";
+
+            while ((line = textReader2.readLine()) != null) {
 
                 p = Pattern.compile(REGEX1);
                 matcher = p.matcher(line);
@@ -79,48 +97,32 @@ public class VI_xgreslikova {
                     categories.add(matcher.group(1).trim());
                 }
             }
-            textReader.close();
-            
+            textReader2.close();
+            fr_categories.close();
+
             //read redirects
             FileReader fr_redirects = new FileReader(filePath_redirects);
-            textReader = new BufferedReader(fr_redirects);
-            
-            String REGEX2 = "(?i)(<http[^>]*>).*wikiPageRedirects[^<]*(<http[^>]*>)";
+            BufferedReader textReader3 = new BufferedReader(fr_redirects);
+
+            String REGEX2 = "(?i)<http://dbpedia.org/resource/([^>]*)>.*wikiPageRedirects[^<]*<http://dbpedia.org/resource/([^>]*)>";
             List<String> redirects = new ArrayList<>();
-       
-            while ((line = textReader.readLine()) != null) {
+
+            while ((line = textReader3.readLine()) != null) {
 
                 p = Pattern.compile(REGEX2);
                 matcher = p.matcher(line);
                 while (matcher.find()) {
-                    System.out.println(matcher.group(1).trim());
-                    redirects.add(matcher.group(1).trim());
+                    System.out.println(matcher.group(1).trim() + "," + matcher.group(2).trim());
+                    redirects.add(matcher.group(1).trim() + "," + matcher.group(2).trim());
                 }
             }
-            textReader.close();
-            
-            //read shortabstract
-            FileReader fr_shortabstract = new FileReader(filePath_shortabstract);
-            textReader = new BufferedReader(fr_shortabstract);
-            
-            String REGEX3 = "(?i)/" + looking + ">.*schema#comment>[^\"]*\"([^\"]*)\"";
-            String shortabstract = null;// = new ArrayList<String>();
-            
-            while ((line = textReader.readLine()) != null) {
+            textReader3.close();
+            fr_redirects.close();
 
-                p = Pattern.compile(REGEX3);
-                matcher = p.matcher(line);
-                while (matcher.find()) {
-                    System.out.println(matcher.group(1).trim());
-                    shortabstract = (matcher.group(1).trim());
-                }
-            }            
-            textReader.close();
-            
             //OUTPUT
             create_output_xml(looking, shortabstract, categories, redirects);
-            create_output_txt(looking, shortabstract, categories, redirects);
-            
+            //create_output_txt(looking, shortabstract, categories, redirects);
+
         } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
         }
@@ -129,6 +131,7 @@ public class VI_xgreslikova {
     public static void create_output_xml(String looking, String shortabstract, List<String> categories, List<String> redirects) throws IOException {
 
         String fileOut = "output.xml";
+        String fileOut_redirects = "output_redirects.xml";
 
         try {
 
@@ -149,12 +152,12 @@ public class VI_xgreslikova {
                 }
                 output.add("</categories>");
 
-                output.add("<redirects>");
-                output.add("<nmbred>" + redirects.size() + "</nmbred>");
-                for (String l : redirects) {
-                    output.add("<redrct>" + l + "</redrct>");
-                }
-                output.add("</redirects>");
+//                output.add("<redirects>");
+//                output.add("<nmbred>" + redirects.size() + "</nmbred>");
+//                for (String l : redirects) {
+//                    output.add("<redrct>" + l + "</redrct>");
+//                }
+//                output.add("</redirects>");
 
                 output.add("</article>");
                 output.add("</dbpedia>");
@@ -162,9 +165,26 @@ public class VI_xgreslikova {
                 for (String l : output) {
                     textWriter.write(l);
                     textWriter.newLine();
-
                 }
+
+                textWriter.close();
+
             }
+            fw.close();
+
+
+            //make redirects output
+            FileWriter fw2 = new FileWriter(fileOut_redirects);
+            try (BufferedWriter textWriter2 = new BufferedWriter(fw2)) {
+                for (String l : redirects) {
+                    textWriter2.write(l);
+                    textWriter2.newLine();
+                }
+
+
+                textWriter2.close();
+            }
+            fw2.close();
 
         } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
@@ -172,19 +192,19 @@ public class VI_xgreslikova {
 
 
     }
-    
+
     public static void create_output_txt(String looking, String shortabstract, List<String> categories, List<String> redirects) throws IOException {
 
         String fileOut = "output.txt";
 
         try {
-            
+
             FileWriter fw = new FileWriter(fileOut);
             try (BufferedWriter textWriter = new BufferedWriter(fw)) {
                 List<String> output = new ArrayList<>();
 
                 textWriter.write(looking.hashCode() + "<title:" + looking + ">" + "<shortabstract:" + shortabstract + ">");
-                
+
                 textWriter.write("<categories:");
                 for (String l : categories) {
                     textWriter.write(l + ".");
@@ -206,10 +226,10 @@ public class VI_xgreslikova {
 
 
     }
-    
-     public static boolean unit_test(String expected_result, String real_result) throws IOException {
-         
-         return (expected_result).equals(real_result); 
-         
-     }
+
+    public static boolean unit_test(String expected_result, String real_result) throws IOException {
+
+        return (expected_result).equals(real_result);
+
+    }
 }
